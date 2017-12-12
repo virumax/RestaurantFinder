@@ -11,6 +11,7 @@
 #import "RestaurantListViewController.h"
 #import "RestaurantListViewModel.h"
 #import "ViewModelServicesImpl.h"
+#import "AFNetworking.h"
 
 @interface AppDelegate ()
 
@@ -23,6 +24,8 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    
+    [[AFNetworkReachabilityManager sharedManager] startMonitoring];
     
     [self createInitialViewController];
     

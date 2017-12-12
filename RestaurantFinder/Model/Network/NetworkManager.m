@@ -54,6 +54,7 @@ static NetworkManager *sharedManager = nil;
         [self.networkingManager.requestSerializer setValue:API_KEY forHTTPHeaderField:@"user-key"];
         self.networkingManager.responseSerializer.acceptableContentTypes = [self.networkingManager.responseSerializer.acceptableContentTypes setByAddingObjectsFromArray:@[@"text/html", @"application/json", @"text/json"]];
         self.networkingManager.securityPolicy = [self getSecurityPolicy];
+        [self.networkingManager.reachabilityManager startMonitoring];
     }
     return self.networkingManager;
 }
@@ -75,7 +76,7 @@ static NetworkManager *sharedManager = nil;
 
 - (RACSignal *)fetchLocations:(NSString *)searchString {
     
-    if (![[AFNetworkReachabilityManager sharedManager] isReachable]) {
+    if ([self connectedToInternet]) {
         [UIAlertController showAlertViewWithTitle:@"Error" message:@"The Internet connection appears to be offline." button1:@"Ok"];
         return [RACSignal empty];
     }
@@ -137,7 +138,7 @@ static NetworkManager *sharedManager = nil;
 
 - (RACSignal *)fetchRestaurantsForLocation:(Location *)location {
     
-    if (![[AFNetworkReachabilityManager sharedManager] isReachable]) {
+    if ([self connectedToInternet]) {
         [UIAlertController showAlertViewWithTitle:@"Error" message:@"The Internet connection appears to be offline." button1:@"Ok"];
         return [RACSignal empty];
     }
@@ -216,5 +217,11 @@ static NetworkManager *sharedManager = nil;
         [self.progressHUD removeFromSuperview];
         self.progressHUD = nil;
     }
+}
+
+#pragma mark - private method
+- (BOOL) connectedToInternet {
+    NSString *URLString = [NSString stringWithContentsOfURL:[NSURL URLWithString:@"http://www.google.com"] encoding:NSUTF8StringEncoding error:nil];
+    return ( URLString != NULL ) ? YES : NO;
 }
 @end
